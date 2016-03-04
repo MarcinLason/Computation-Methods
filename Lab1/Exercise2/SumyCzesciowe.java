@@ -9,12 +9,38 @@ public class SumyCzesciowe {
 		
 		if(fromOne == true) {
 			for(int k = 1; k <= n; k++) {
-				result = (float) (result + (1/(Math.pow((float)k, s))));
+				result = result + (float)(1/(Math.pow(k, s)));
+			}
+		}
+		
+		if(fromOne == false) {
+			for(int k = n; k > 0; k--) {
+				result = result + (float)((1/(Math.pow(k, s))));
 			}
 		}
 		
 		return result;
 	}
+	
+	
+	public float etaFloat (float s, int n, boolean fromOne) {
+		float result = (float) 0.0;
+		
+		if (fromOne == true) {
+			for(int k = 1; k <=n; k++) {
+				result = result + (float)(Math.pow((float)(-1.0), (k-1)) * (1/(Math.pow(k, s))) ); 
+			}
+		}
+		
+		if(fromOne == false) {
+			for(int k = n; k > 0; k--) {
+				result = result + (float)(Math.pow((float)(-1.0), (k-1)) * (1/(Math.pow(k, s))) ); 
+			}
+		}
+		
+		return result;
+	}
+	
 	
 
 	public double dzetaDouble (double s, int n, boolean fromOne) {
@@ -22,13 +48,13 @@ public class SumyCzesciowe {
 		
 		if(fromOne == true) {
 			for(int k = 1; k <= n; k++) {
-				result = result + (1/(Math.pow((double)k, s)));
+				result = result + (1/(Math.pow(k, s)));
 			}
 		}
 		
 		if (fromOne == false) {
 			for(int k = n; k > 0; k--) {
-				result = result + (1/(Math.pow((double)k, s)));
+				result = result + (1/(Math.pow(k, s)));
 			}
 		}
 		
@@ -41,13 +67,13 @@ public class SumyCzesciowe {
 		double result = 0.0;
 		if (fromOne == true) {
 			for(int k = 1; k <=n; k++) {
-				result = result + (Math.pow((double)(-1.0), (double)(k-1)) * (1/(Math.pow((double)k, s))) ); 
+				result = result + (Math.pow((-1.0), (k-1)) * (1/(Math.pow(k, s))) ); 
 			}
 		}
 		
 		if(fromOne == false) {
 			for(int k = n; k > 0; k--) {
-				result = result + (Math.pow((double)(-1.0), (double)(k-1)) * (1/(Math.pow((double)k, s))) ); 
+				result = result + (Math.pow((-1.0), (k-1)) * (1/(Math.pow(k, s))) ); 
 			}
 		}
 		return result;
@@ -64,6 +90,10 @@ public class SumyCzesciowe {
 				System.out.println("-------------------------------------------------------------------");
 				System.out.println("N = " + N[i]);
 				System.out.println("S = " + S[j]);
+				System.out.println("dzetaFloat od przodu:  " + x.dzetaFloat((float)S[j], N[i], true));
+				System.out.println("dzetaFloat od tylu:    " + x.dzetaFloat((float)S[j], N[i], false));
+				System.out.println("etaFloat od przodu     " + x.etaFloat((float)S[j], N[i], true));
+				System.out.println("etaFloat od tylu       " + x.etaFloat((float)S[j], N[i], false));
 				System.out.println("dzetaDouble od przodu: " + x.dzetaDouble(S[j], N[i], true));
 				System.out.println("dzetaDouble od tylu:   " + x.dzetaDouble(S[j], N[i], false));
 				System.out.println("etaDouble od przodu:   " + x.etaDouble(S[j], N[i], true));

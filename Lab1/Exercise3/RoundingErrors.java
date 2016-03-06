@@ -13,7 +13,7 @@ public class RoundingErrors {
 	public static float[][] resultsF = new float[500][2];
 	
 	
-	public static void setResultsD (double x0, double r) {
+	public static void setResultsD (double x0, double r) { //method which write down next values of x to array resultsD
 		resultsD[0][0] = r;
 		resultsD[0][1] = x0;
 		
@@ -24,7 +24,7 @@ public class RoundingErrors {
 		
 	}
 	
-	public static void setResultsF (float x0, float r) {
+	public static void setResultsF (float x0, float r) { //method which write down next values of x to array resultsF
 		resultsF[0][0] = r;
 		resultsF[0][1] = x0;
 		
@@ -35,7 +35,7 @@ public class RoundingErrors {
 		
 	}
 	
-	public static void plot(double x0) {
+	public static void plot(double x0) { // method which create a diagram of all x for r from range <1.0, 4.0> (Bifurcation diagram)
 		JavaPlot plot = new JavaPlot();
 		PlotStyle myPlotStyle = new PlotStyle();
 		myPlotStyle.setStyle(Style.DOTS);
@@ -43,18 +43,18 @@ public class RoundingErrors {
 		
 		
 		for(double r = 1.0; r < 4.0; r+= 0.002){
-			setResultsD(x0, r);
+			setResultsD(x0, r); //I prepare new x-es to plot
 			DataSetPlot dsp = new DataSetPlot(resultsD);
 	        dsp.setPlotStyle(myPlotStyle);
-	        plot.addPlot(dsp);
+	        plot.addPlot(dsp); //Adding new points which will be plotted on the diagram
 	        System.out.println(r);
 		}
 		
         plot.setKey(Key.OFF);
-        plot.plot();
+        plot.plot(); //final plotting all of the points
 	}
 	
-	public static void punctualPlot(double x0) {
+	public static void punctualPlot(double x0) { //method which will compare doubles and floats values on the small range of r
 		JavaPlot plot = new JavaPlot();
 		
 		PlotStyle styleDouble = new PlotStyle();
@@ -70,7 +70,7 @@ public class RoundingErrors {
 			DataSetPlot dsp = new DataSetPlot(resultsD);
 	        dsp.setPlotStyle(styleDouble);
 	        plot.addPlot(dsp);
-	        System.out.println(r);
+	        System.out.println(r); //only for the view that program is running
 		}
 		
 		for(float r = 3.75f; r < 3.8f; r+= 0.001) {
@@ -78,7 +78,7 @@ public class RoundingErrors {
 			DataSetPlot dsp = new DataSetPlot(resultsF);
 			dsp.setPlotStyle(styleFloat);
 			plot.addPlot(dsp);
-			System.out.println(r);
+			System.out.println(r); //only for the view that program is running
 		}
 		
         plot.setKey(Key.OFF);
@@ -94,7 +94,6 @@ public class RoundingErrors {
 			x = r * x * (1-x);
 			counter++;
 		}
-		
 		return counter;
 		
 	}

@@ -4,7 +4,7 @@ import java.util.Random;
 
 
 public class GaussJordan {
-	final static int SIZE = 4;
+	final static int SIZE = 60;
 	static double[][] Matrix = new double[SIZE][SIZE];
 	static double[] FreeTerms = new double[SIZE];
 	static double[] Unknowns = new double[SIZE];
@@ -13,7 +13,7 @@ public class GaussJordan {
 		Random rand = new Random();
 		for(int i = 0; i < SIZE; i++) {
 			for(int j = 0; j < SIZE; j++) {
-				Matrix[i][j] = rand.nextDouble();
+				Matrix[i][j] = rand.nextDouble() * 5;
 			}
 		}
 		
@@ -43,7 +43,6 @@ public class GaussJordan {
 		
 		
 		if(startIndex == pivot.x && startIndex == pivot.y) { //if Pivot was found on the right place
-			System.out.println("Nie muszê nic zamieniaæ");
 			return;
 		}
 		
@@ -108,23 +107,66 @@ public class GaussJordan {
 		
 		for(int i = 0; i < SIZE; i++) {
 			for(int j = 0; j < SIZE; j++) {
-				System.out.print(Matrix[i][j] + " ");
+				System.out.print(Matrix[i][j] + "-------------");
 			}
-			System.out.println("|| " + FreeTerms[i]);
+			System.out.println("||||| " + FreeTerms[i]);
 		}
 	}
+	
+	public static void gauss () {
+		int startIndex = 0;
+		while(startIndex < SIZE){
+			swapPivot(startIndex);
+			double ratio;
+		
+			for(int i = 0; i < SIZE; i++) {
+				if(i == startIndex && i == SIZE - 1){
+					return;
+				}
+			
+				if(i == startIndex) {
+					i++;
+				}
+			
+				ratio = ((Matrix[startIndex][startIndex]) / (Matrix[i][startIndex]));
+				FreeTerms[i] = FreeTerms[i] * ratio - FreeTerms[startIndex];
+			
+				for(int j = startIndex; j < SIZE; j++) {
+					Matrix[i][j] = Matrix[i][j] * ratio - Matrix[startIndex][j];
+				}
+			}	
+		startIndex++;
+		}
+		
+		
+		
+	}
+	
+	public static void clear() {
+		for(int i = 0; i < SIZE; i++) {
+			FreeTerms[i] = FreeTerms[i] / Matrix[i][i];
+			Matrix[i][i] = 1.0;
+		}
+	}
+	
 
 	public static void main(String[] args) {
+		long startTime = System.nanoTime(); 
 		prepareMatrixes();
-		draw();
-		Point p = findPivot(0);
-		System.out.println("" + p.value + "     " + p.x + "      " + p.y);
+		//draw();
+		gauss();
 		
-		swapPivot(0);
-		swapPivot(1);
-		swapPivot(2);
-		swapPivot(3);
-		draw();
+		//draw();
+		clear();
+		//draw();
+		
+		for(int i = 0; i < SIZE; i++) {
+			System.out.println(Unknowns[i]);
+		}
+		
+		long estimatedTime = System.nanoTime() - startTime;
+		System.out.println("Program have been working for " + estimatedTime + "  nanoseconds");
+		   
 		
 	
 	

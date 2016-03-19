@@ -3,11 +3,15 @@ package Lab2;
 import java.util.Random;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.DecompositionSolver;
+import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
 
 
 public class GaussJordan {
-	final static int SIZE = 400;
+	final static int SIZE = 1000;
 	static double[][] Matrix = new double[SIZE][SIZE];
 	static double[] FreeTerms = new double[SIZE];
 	static double[] Unknowns = new double[SIZE];
@@ -18,7 +22,6 @@ public class GaussJordan {
 		for(int i = 0; i < SIZE; i++) {
 			for(int j = 0; j < SIZE; j++) {
 				Matrix[i][j] = (rand.nextDouble() * (rand.nextInt(1000) - 500 ));
-				LibMatrix[i][j] = Matrix[i][j];
 			}
 		}
 		
@@ -28,7 +31,6 @@ public class GaussJordan {
 		Random rand = new Random();
 		for(int i = 0; i < SIZE; i++){
 			FreeTerms[i] = rand.nextDouble() * (rand.nextInt(1000) - 500 );
-			LibMatrix[i][SIZE] = FreeTerms[i];
 		}
 	}
 	
@@ -60,7 +62,7 @@ public class GaussJordan {
 			FreeTerms[startIndex] = c;
 			
 			//swaping all values from the Matrix between startIndex's verse and pivot's verse
-			for(int i = startIndex; i < SIZE; i++) {
+			for(int i = 0; i < SIZE; i++) {
 				c = Matrix[startIndex][i];
 				Matrix[startIndex][i] = Matrix[pivot.x][i];
 				Matrix[pivot.x][i] = c;
@@ -77,7 +79,7 @@ public class GaussJordan {
 			Unknowns[startIndex] = c;
 			
 			//swaping all values from the Matrix between startIndex's verse and pivot's column
-			for(int i = startIndex; i < SIZE; i++) {
+			for(int i = 0; i < SIZE; i++) {
 				c = Matrix[i][startIndex];
 				Matrix[i][startIndex] = Matrix[i][pivot.y];
 				Matrix[i][pivot.y] = c;
@@ -119,7 +121,7 @@ public class GaussJordan {
 		}
 	}
 	
-	public static void gauss () { //the most important method, uses other ones to implement gauss-jordan algorithm on the matrix
+	public static void gauss() { //the most important method, uses other ones to implement gauss-jordan algorithm on the matrix
 		int startIndex = 0;
 		while(startIndex < SIZE){
 			swapPivot(startIndex);
@@ -135,10 +137,10 @@ public class GaussJordan {
 				}
 			
 				ratio = ((Matrix[i][startIndex]) / (Matrix[startIndex][startIndex]));
-				FreeTerms[i] = FreeTerms[i] * ratio - FreeTerms[startIndex];
+				FreeTerms[i] = FreeTerms[i] - ratio * FreeTerms[startIndex];
 			
 				for(int j = startIndex; j < SIZE; j++) {
-					Matrix[i][j] = Matrix[startIndex][j] * ratio - Matrix[i][j];
+					Matrix[i][j] = Matrix[i][j] - ratio * Matrix[startIndex][j];
 				}
 			}	
 		startIndex++;
@@ -165,14 +167,28 @@ public class GaussJordan {
 
 	public static void main(String[] args) {
 		prepareMatrixes();
-		RealMatrix A = new Array2DRowRealMatrix(libMatrix);
+		long startTimeLib = System.nanoTime();
+		RealMatrix A = new Array2DRowRealMatrix(Matrix, false);
+		RealVector B = new ArrayRealVector(FreeTerms, false);
+		DecompositionSolver solver = new LUDecomposition(A).getSolver();
+		System.out.println("Library solution:");
+		RealVector solution = solver.solve(B);
+		long estimatedTimeLib = System.nanoTime() - startTimeLib;
+		for (int i=0; i<SIZE; i++ ) {
+			System.out.println(solution.getEntry(i));
+		}
+		System.out.println("--------------------------------------");
 		
 		long startTime = System.nanoTime();
 		gauss();
 		clear();
-		writeUnknowns();
 		long estimatedTime = System.nanoTime() - startTime;
-		System.out.println("Program have been working for " + estimatedTime + "  nanoseconds");
+		System.out.println("My solution:");
+		writeUnknowns();
+		
+		System.out.println("-------TIME RESULTS: -------");
+		System.out.println("My program have been working for " + estimatedTime + "  nanoseconds.");
+		System.out.println("Library's program have been working for " + estimatedTimeLib + " nanoseconds." );
 			
 	}
 }

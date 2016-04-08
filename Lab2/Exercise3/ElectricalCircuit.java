@@ -1,27 +1,26 @@
 package Lab2;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-import org.jgraph.graph.*;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.WeightedGraph;
 import org.jgrapht.alg.cycle.PatonCycleBase;
+import org.jgrapht.graph.ListenableUndirectedGraph;
 import org.jgrapht.graph.ListenableUndirectedWeightedGraph;
-
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.view.mxGraph;
 
 public class ElectricalCircuit {
 	static int versePointer = 0; //variable which contains verse of our Matrix where we should add new equation to
+	static int edgesCounter = 0; //
 	static ListenableUndirectedWeightedGraph<String, Edge> graph = new ListenableUndirectedWeightedGraph<String, Edge>(Edge.class); 
 	
-	public static void fillGraph() { // method which reads file with all edges and sem and write them to our graph
+	public static void fillGraph(String path) { // method which reads file with all edges and sem and write them to our graph
 		try {
-			Scanner dataInput = new Scanner(new File("C:/Home/Tools/workspace/Mownit/src/Lab2/data.txt"));
+			Scanner dataInput = new Scanner(new File(path));
 			String line;
 			boolean inEdges = false;
 			boolean inForce = false;
@@ -47,7 +46,11 @@ public class ElectricalCircuit {
 					graph.addVertex(splittedForce[0]);
 					graph.addVertex(splittedForce[1]);
 					Edge currentEdge = new Edge(splittedForce[0], splittedForce[1], Double.parseDouble(splittedForce[2]), 0, true);
-					graph.addEdge(currentEdge.vertex1, currentEdge.vertex2, currentEdge);
+					if(graph.containsEdge(splittedForce[0], splittedForce[1]) == false) {
+						currentEdge.index = edgesCounter;
+						edgesCounter++;
+						graph.addEdge(currentEdge.vertex1, currentEdge.vertex2, currentEdge);
+					}
 				}
 				
 				if(inEdges == true) {
@@ -55,7 +58,11 @@ public class ElectricalCircuit {
 					graph.addVertex(splittedEdge[0]);
 					graph.addVertex(splittedEdge[1]);
 					Edge currentEdge = new Edge(splittedEdge[0], splittedEdge[1], Double.parseDouble(splittedEdge[2]), 0, false);
-					graph.addEdge(currentEdge.vertex1, currentEdge.vertex2, currentEdge);
+					if(graph.containsEdge(splittedEdge[0], splittedEdge[1]) == false) {
+						currentEdge.index = edgesCounter;
+						edgesCounter++;
+						graph.addEdge(currentEdge.vertex1, currentEdge.vertex2, currentEdge);
+					}
 				}
 			}
 			
@@ -63,7 +70,6 @@ public class ElectricalCircuit {
 		}catch(Exception e) {}
 		indexEdges(); //where we've got only correct edges in our graph (for example edges (2,3) and (3,2) will be only one edge) we can ascripe them indexes.
 	} 
-	
 	
 	public static void indexEdges() { // helping method to fill indexes of existing edges
 		Set<Edge> allEdgesInGraph = graph.edgeSet();
@@ -74,9 +80,7 @@ public class ElectricalCircuit {
 		}
 	}
 	
-	
-	
-	public static void draw(double[][] matrix, double[] freeTerms, int size) { //helping method to draw array of equations and vector of free terms
+	public static void drawArrays(double[][] matrix, double[] freeTerms, int size) { //helping method to draw array of equations and vector of free terms
 		for(int i = 0; i < size; i++) {
 			for(int j = 0; j < size; j++) {
 				System.out.print(matrix[i][j] + " ");
@@ -85,26 +89,23 @@ public class ElectricalCircuit {
 		}	
 	}
 	
-	
-	
-	public static void kirchoff1 (double[][] matrix, double[] freeTerms) { 
+	public static void kirchoff1 (double[][] matrix, int SIZE) { 
 		Set<String> vertexes = graph.vertexSet(); 
 		for(String v : vertexes) { 
 			Set<Edge> touchingEdges = graph.edgesOf(v); //touching edges is a set of all edges outgoing vector v
 			
 			for(Edge e : touchingEdges) { //this loop create one equation 
-				if(e.isSEM == false) {
-					matrix[versePointer][e.index] = 1.0;
-				}
-				if(e.isSEM == true) {
-					freeTerms[versePointer] = e.value;
-				}
+				matrix[versePointer][e.index] = 1.0;
 			}
 			versePointer++;
-		}	
+		}
+		versePointer--;
+		for(int i = 0; i < SIZE; i++) {
+			matrix[versePointer][i] = 0.0; //the last equation is useless so I can delete it in order to have one more equation from Kirchoff2
+		}
 	}
 	
-	public static void kirchoff2 (double[][] matrix, int SIZE) {
+	public static void kirchoff2 (double[][] matrix, double[] freeTerms, int SIZE) {
 		PatonCycleBase<String,Edge> pcb = new PatonCycleBase<String,Edge>(); //creating object which is able to find cycles in our graph
 		pcb.setGraph(graph); //it will be looking for cycles in our graph
 		List<List<String>> list = pcb.findCycleBase(); //list is a list of all cycles (cycle is a list of vertexes)
@@ -118,38 +119,68 @@ public class ElectricalCircuit {
 				Set<Edge> touchingEdges = graph.edgesOf(v);
 				for(Edge e : touchingEdges) {
 					if(versePointer < SIZE && cycle.contains(e.vertex1) && cycle.contains(e.vertex2)){
-						matrix[versePointer][e.index] = e.value;
-					}
-					
+						if(e.isSEM == false) {
+							matrix[versePointer][e.index] = e.value;
+						}
+						if(e.isSEM == true) {
+							freeTerms[versePointer] = e.value;
+						}
+					}	
 				}
 			}
 		}
 			versePointer++;
 		}
+		}	
+	}		
+
+	
+	public static void drawGraph( String pythonScriptPath, String resultsFile) {
+		String [] systemLine = {"python", pythonScriptPath, resultsFile}; 
+		ProcessBuilder pb = new ProcessBuilder(systemLine); 
+		Process p;
+		
+		try {
+			p = pb.start();
+		} catch (IOException e){
+			System.out.println("Python have not started.");
+		}
+    }
+
+	public static void main(String[] args) {
+		String pathToTheData = "data.txt";
+		String pathToTheDrawingDataFile = "drawingData.txt";
+		fillGraph(pathToTheData); //creating a graph with vertexes and edges from the file
+		
+		int SIZE = graph.edgeSet().size(); //array of equations will have SIZE = number of edges
+		double[][] matrix = new double[SIZE][SIZE]; //creating an array for all equations 
+		double[] freeTerms = new double[SIZE]; //creating an array for free terms of the equations
+		double[] results = new double[SIZE]; //creating an array for values of the intensities
+		
+		kirchoff1(matrix, SIZE);
+		kirchoff2(matrix, freeTerms, SIZE);
+		
+		GaussJordan.SIZE = SIZE;
+		GaussJordan.Matrix = matrix;
+		GaussJordan.FreeTerms = freeTerms;
+		GaussJordan.fillUnknows();
+		GaussJordan.gauss();
+		GaussJordan.clear();
+		System.out.println(SIZE);
+		results = GaussJordan.passResults();
+		for(Edge e : graph.edgeSet()){
+			e.result= results[e.index];	
 		}
 		
 		
-	}		
-
-
-	public static void main(String[] args) {
-		fillGraph(); //creating a graph with vertexes and edges from the file
-		int SIZE = graph.edgeSet().size(); //array of equations will have SIZE = number of edges
-		//System.out.println(SIZE);
-		double[][] matrix = new double[SIZE][SIZE]; //creating an array for all equations 
-		double[] freeTerms = new double[SIZE]; //creating an array for free terms of the equations
-		draw(matrix, freeTerms, SIZE);
-		kirchoff1(matrix, freeTerms);
-		kirchoff2(matrix, SIZE);
-		System.out.println("PO KIRCHOFFACH:");
-		System.out.println(versePointer);
-		draw(matrix, freeTerms, SIZE);
+		try {
+			PrintWriter writer = new PrintWriter(new File(pathToTheDrawingDataFile));
+			for(Edge e : graph.edgeSet()){
+				writer.println(e.vertex1 + " "+ e.vertex2 + " "+ e.result);
+			}
+			writer.close();
+		} catch (Exception e) {System.out.println(e.getMessage());}	
 		
-		
-		//System.out.println(graph.getEdgeWeight(graph.getEdge("1", "4")));
-		//System.out.println(graph.toString());
-		
+		drawGraph("drawingScript.py", "drawingData.txt");
 	}
-	
-
 }

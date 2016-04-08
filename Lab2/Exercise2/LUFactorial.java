@@ -2,11 +2,9 @@ package Lab2;
 
 import java.util.Random;
 
-import org.apache.commons.math3.linear.*;
-
 public class LUFactorial {
 	//Function check works only without pivoting. It is caused by the fact that pivoting changes configuration of verses.
-	final static int SIZE = 1000;
+	final static int SIZE = 600;
 	static double[][] OriginalMatrix = new double[SIZE][SIZE];
 	static double[][] Matrix = new double[SIZE][SIZE];
 	static double[][] CheckMatrix = new double[SIZE][SIZE];
@@ -23,7 +21,7 @@ public class LUFactorial {
 			L[i][i] = 1;
 		}
 		
-		for(int i = 0; i < SIZE; i++) {
+		for(int i = 0; i < SIZE; i++) { //Saving original values, to check if factorisation is correct
 			for(int j = 0; j < SIZE; j++) {
 				OriginalMatrix[i][j] = Matrix[i][j];
 			}
@@ -61,9 +59,7 @@ public class LUFactorial {
 			System.out.println(L[i][SIZE - 1]);
 		}
 	}
-	
-	
-	
+		
 	public static void swapPivot(int startIndex) {
 		Point pivot = findPivot(startIndex); //finding Pivot
 		
@@ -84,10 +80,10 @@ public class LUFactorial {
 		
 	}
 	
-	public static void factorize() { //function using Gauss algorithm to 
+	public static void factorize() { //function using Gauss algorithm to change matrix into U, and fill L. 
 		int startIndex = 0;
 		while(startIndex < SIZE){
-			swapPivot(startIndex);
+			//swapPivot(startIndex); //commenting this line causes that all algorithm works without pivoting
 			double ratio;
 		
 			for(int i = startIndex + 1; i < SIZE; i++) {
@@ -113,12 +109,11 @@ public class LUFactorial {
 				CheckMatrix[i][j] = result;			
 			}
 		}
-		
-		
+			
 		boolean isTheSame = true;
 		for(int i = 0; i < SIZE; i++) {
 			for(int j = 0; j < SIZE; j++) {
-				if(Math.abs(OriginalMatrix[i][j] - CheckMatrix[i][j]) > 0.000001) {
+				if(Math.abs(OriginalMatrix[i][j] - CheckMatrix[i][j]) > 0.000001) { 
 					isTheSame = false;
 				}
 			}
@@ -128,8 +123,8 @@ public class LUFactorial {
 	public static void main(String[] args) {
 		prepareMatrixes();
 		factorize();
-		//boolean check = check();
-		//System.out.println("Is well factorized?" + check);
+		boolean check = check();
+		System.out.println("Is well factorized?" + check);
 	}
 }
 

@@ -8,6 +8,7 @@ public class Edge extends DefaultWeightedEdge {
 	double value;
 	int index;
 	boolean isSEM;
+	double result;
 	
 	public Edge(String vertex1, String vertex2, double value, int index, boolean isSEM) {
 		this.index = index;

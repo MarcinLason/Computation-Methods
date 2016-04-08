@@ -1,7 +1,6 @@
 package Lab2;
 
 import java.util.Random;
-
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
@@ -11,11 +10,10 @@ import org.apache.commons.math3.linear.RealVector;
 
 
 public class GaussJordan {
-	final static int SIZE = 1000;
+	static int SIZE = 1000;
 	static double[][] Matrix = new double[SIZE][SIZE];
 	static double[] FreeTerms = new double[SIZE];
 	static double[] Unknowns = new double[SIZE];
-	static double[][] LibMatrix = new double[SIZE][SIZE + 1];
 	
 	public static void fillMatrix() {
 		Random rand = new Random();
@@ -153,7 +151,6 @@ public class GaussJordan {
 			Matrix[i][i] = 1.0;
 		}
 	}
-	
 	public static void writeUnknowns() {
 		double[] result = new double[SIZE];
 		for(int i = 0; i < SIZE; i++) {
@@ -164,7 +161,14 @@ public class GaussJordan {
 		}
 	}
 	
-
+	public static double[] passResults() {
+		double[] result = new double[SIZE];
+		for(int i = 0; i < SIZE; i++) {
+			result[(int)Unknowns[i]] = FreeTerms[i];
+		}		
+		return result;
+	}
+	
 	public static void main(String[] args) {
 		prepareMatrixes();
 		long startTimeLib = System.nanoTime();
@@ -188,7 +192,6 @@ public class GaussJordan {
 		
 		System.out.println("-------TIME RESULTS: -------");
 		System.out.println("My program have been working for " + estimatedTime + "  nanoseconds.");
-		System.out.println("Library's program have been working for " + estimatedTimeLib + " nanoseconds." );
-			
+		System.out.println("Library's program have been working for " + estimatedTimeLib + " nanoseconds." );		
 	}
 }

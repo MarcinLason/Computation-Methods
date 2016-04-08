@@ -82,8 +82,8 @@ public class SubtractionErrors {
 	}
 
 	public static void main(String[] args) {
-		double StartingX = 0.00000001;
-		double RateofGrowth = 0.00000001;
+		double StartingX = 0.1;
+		double RateofGrowth = 0.01;
 		
 		
 		for(int i = 0; i < 10; i++) {

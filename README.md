@@ -1,5 +1,5 @@
-# Mownit
-Repository of files created by preparing to labolatories of subject Mownit (Numerical Analysis):
+# Computation Methods for Science and Technology
+Repository of files created by preparing to labolatories of subject Computation Methods for Science and Technology:
 
 Lab1:
   Exercise1: Sinus and cosinus series expansion with comparison with library solutions.
